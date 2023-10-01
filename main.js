@@ -1,120 +1,138 @@
 var url = "http://localhost:3000/comments"
-
-var arrayTitle = new Array()
-var Url1;
+var View_Book = document.getElementById("View_Book")
+GetUrl();
 async function GetUrl() {
     try {
-        const reporise = await fetch(url);
-        if (!reporise.ok) {
-            throw new Error(`Lỗi HTTP! Trạng thái: ${response.status}`);
+        const reposire = await fetch(url)
+        if (!reposire.ok) {
+            throw new Error("ConSole.lo")
         }
-        const Value = await reporise.json();
-        Value.map(TiTle => {
-            if (url + '/ ' + TiTle.id == Url1) {
-                console.log("A")
-            } else {
+        const arrayreposie = await reposire.json()
+        await draw(arrayreposie)
 
-                arrayTitle.push(`
-                    <div id = id_${TiTle.id}>
-                        <h1 id= "TextName">${TiTle.TiTleName}</h1>
-                        <p id ="TextContent">${TiTle.Titlebody}</p>
-                        <button onclick = Delete(${TiTle.id})>DeleTe</button>
-                        <button onclick = ListenApi(${TiTle.id})>Edit</button>
-
-                    </div>
-               `)
-            }
-        })
-        tExtContent(arrayTitle)
-    }
-    catch (error) {
-        console.error("Lỗi:", error);
+    } catch (error) {
+        console.log(error)
     }
 }
-GetUrl()
+async function draw(reposies) {
+    try {
+        const commentHtml = await reposies.map(comments => {
+            return `
+            <div id = tag_${comments.id}>
+            <h1 class = text_${comments.id}>${comments.TiTleName}</h1>
+            <p class = htmlelement_${comments.id}>${comments.Titlebody}</p>
+            <button class = btn_${comments.id} onclick = Delete(${comments.id})>Delete</button>
+            <button onclick = "Setting(${comments.id})">Chinh Sua</button>
+
+            </div>  
+            `
+        }).join("")
+        View_Book.innerHTML = commentHtml
+    } catch (error) {
+        console.log(error)
+    }
+}
 
 async function CreateApi() {
-    const TiTleName = await document.getElementById("MyName").value
-    const Titlebody = await document.getElementById("Text").value
-    const CreateName = await fetch('http://localhost:3000/comments', {
-        method: 'POST',
-        body: JSON.stringify({
-            TiTleName: TiTleName,
-            Titlebody: Titlebody,
-
-        }),
+    var TiTleNames = document.getElementById("MyName").value
+    var Titlebodys = document.getElementById("Text").value
+    const fetchMethod = {
+        method: "POST",
+        mode: "cors",
+        cache: "no-cache",
+        credentials: "same-origin",
         headers: {
-            'Content-type': 'application/json; charset=UTF-8',
+            "Content-Type": "application/json",
+        },
+        redirect: "follow",
+        referrerPolicy: "no-referrer-when-downgrade",
+        body: JSON.stringify({
+            TiTleName: TiTleNames,
+            Titlebody: Titlebodys
+        })
+    }
+    try {
+        const reposire = await fetch("http://localhost:3000/comments", fetchMethod);
+        if (!reposire.ok) {
+            throw new Error("fetch url Error")
         }
-    })
+        const responseJson = await reposire.json();
+        console.log(responseJson);
+
+    } catch (error) {
+        console.log("Lỗi CreateApi:", error);
+    }
 }
+
+
 
 async function Delete(id) {
-    console.log(url + '/' + id)
-    const putMethod = {
-        method: 'DELETE',
-    }
-    fetch(url + '/' + id, putMethod)
-        .then(reposie => {
-            reposie.json()
-        })
+    const methodDelete = {
+        method: "DELETE",
 
+    }
+
+    await fetch(`${url}/${id}`, methodDelete)
 
 }
 
-async function ListenApi(id) {
-    var divMap = document.getElementById(`id_${id}`)
-    var TextName = divMap.getElementsByTagName("h1")[0].textContent;
-    var TextBody = divMap.getElementsByTagName("p")[0].textContent;
-    console.log(typeof TextName, typeof TextBody)
-    divMap.innerHTML = `
-            <h1 id= "TextName">${TextName}</h1>
-            <p id ="TextContent">${TextBody}</p>
-            <select  id ="Opption_${id}">
-                <option>TextName</option>
-                <option>TextBody</option>
+async function Setting(id) {
+    let ViewOpption = document.getElementById(`tag_${id}`)
+    let Textheader = ViewOpption.getElementsByClassName(`text_${id}`)[0].innerHTML
+    let htmlelement = ViewOpption.getElementsByClassName(`htmlelement_${id}`)[0].innerHTML
+    console.log(ViewOpption, Textheader)
+    ViewOpption.innerHTML = `
+       <div id = tag_${id}>
+            <h1 class = text_${id}>${Textheader}</h1>
+            <p class = htmlelement_${id}>${htmlelement}</p>
+            <select id = option_${id}>
+            <option>Tieeu DE</option >  
+            <option>Noi Dung</option >    
             </select>
-            <input id ="Text_${id}" type="text">
-            <button onclick="LisTenControl(${id})">Save</button>
-         `
+            <input id = ${id}></input  >
+            <button onclick = "SaveContent(${id})">SaveContent</button>
+            </div>  
+           
+    `
+
 }
-async function LisTenControl(id) {
-    var ValueInput = document.getElementById(`Opption_${id}`).value // Get Opption Value
-    var TextInput = document.getElementById(`Text_${id}`).value // Get Value Input
-    var divMap = document.getElementById(`id_${id}`) // Get Div id
-    if (ValueInput == "TextName") {
-        var TextName = divMap.getElementsByTagName("h1")[0].textContent; // Get TextName
-        var TextBody = divMap.getElementsByTagName("p")[0].textContent; // GetTextBody
-        const requestOptions = {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                TiTleName: TextInput,
-                Titlebody: TextBody,
-            }),
-        };
-        fetch(url + '/' + id, requestOptions)
+async function SaveContent(id) {
+    let Content = await document.getElementById(`${id}`).value
+    let option = await document.getElementById(`option_${id}`).value;
+    let ViewOpption = document.getElementById(`tag_${id}`)
 
-    } else if (ValueInput == "TextBody") {
-        var TextName = divMap.getElementsByTagName("h1")[0].textContent; // Get TextName
-        console.log(TextName)
-        const requestOptions = {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                TiTleName: TextName,
-                Titlebody: TextInput,
-            }),
+    if (option == 'Tieeu DE') {
+        let htmlelement = ViewOpption.getElementsByClassName(`htmlelement_${id}`)[0].innerHTML
+        const methodPust = {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            },
 
-        };
-        console.log(TextName, TextInput)
-        fetch(url + '/' + id, requestOptions)
+            body: JSON.stringify({
+                TiTleName: Content,
+                Titlebody: htmlelement
+            })
+        }
+        await fetch(`${url}/${id}`, methodPust)
+
+    } else if (option == 'Noi Dung') {
+        let Text = ViewOpption.getElementsByClassName(`text_${id}`)[0].innerHTML
+        const methodPust = {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            },
+
+            body: JSON.stringify({
+                TiTleName: Text,
+                Titlebody: Content
+            })
+        }
+        await fetch(`${url}/${id}`, methodPust)
     }
 
 }
 
-function tExtContent(TiTle) {
-    var Text = document.getElementById("View_Book")
-    Text.innerHTML = TiTle.join("")
 
-}
+
