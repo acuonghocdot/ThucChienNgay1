@@ -1,4 +1,4 @@
-import { setupSizeClickHandlers } from '/active.js'
+import { setupSizeClickHandlers } from './active.js'
 setupSizeClickHandlers();
 
 
